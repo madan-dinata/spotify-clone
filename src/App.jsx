@@ -157,7 +157,7 @@ export default function App() {
           </div>
 
           <div className="col-span-12 py-1 ml-96">
-            <div className="overflow-x-auto bg-gradient-to-b from-[#212121] to-[#121212] rounded-xl py-4 px-2">
+            <div className="overflow-x-auto bg-gradient-to-b from-[#212121] to-[#121212] rounded-xl py-4 px-6">
               <div className="grid grid-cols-6 gap-4">
                 <div className="col-start-1 col-end-10">
                   <input type="text" placeholder="Search..." className="px-4 py-3 mb-3 me-3 rounded-3xl w-2/6" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
@@ -219,6 +219,9 @@ export default function App() {
                   </tr>
                 </tfoot>
               </table>
+              <footer className="border-t border-gray-500 h-fit pt-8 py-16 mt-16">
+                <p className="text-end">&copy; 2023 Muhammad Ramadhan</p>
+              </footer>
             </div>
           </div>
         </div>
