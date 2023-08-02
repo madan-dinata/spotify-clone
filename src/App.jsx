@@ -142,7 +142,7 @@ export default function App() {
         </div>
       ) : (
         <div className="grid grid-cols-12 gap-3 py-1 px-1">
-          <div className="py-1 h-screen fixed w-[23rem]">
+          <div className="py-1 h-screen fixed w-[25rem]">
             <div className="bg-[#121212] rounded-xl py-4 px-2 mb-2">
               <h2 className="text-md font-semibold mx-4 cursor-pointer text-white">Home</h2>
             </div>
@@ -156,7 +156,7 @@ export default function App() {
             </div>
           </div>
 
-          <div className="col-span-12 py-1 ml-96">
+          <div className="col-span-12 py-1 ml-[26rem]">
             <div className="overflow-x-auto bg-gradient-to-b from-[#212121] to-[#121212] rounded-xl py-4 px-6">
               <div className="grid grid-cols-6 gap-4">
                 <div className="col-start-1 col-end-10">
@@ -184,7 +184,7 @@ export default function App() {
                 </thead>
                 <tbody>
                   {searchResults.map((track, i) => (
-                    <tr key={track.id}>
+                    <tr key={track.id} className="hover:bg-[#121212]">
                       <td>{i + 1}</td>
                       <td>
                         <div className="flex items-center space-x-3">
@@ -220,7 +220,7 @@ export default function App() {
                 </tfoot>
               </table>
               <footer className="border-t border-gray-500 h-fit pt-8 py-16 mt-16">
-                <p className="text-end">&copy; 2023 Muhammad Ramadhan</p>
+                <p className="text-end">&copy; 2023 Spotify Clone</p>
               </footer>
             </div>
           </div>
