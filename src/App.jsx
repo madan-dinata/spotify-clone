@@ -1,108 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable no-undef */
-/* eslint-disable no-unused-vars */
 import "./App.css"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import axios from "axios"
-import spotifyLogo from "/images/spotify_icon.png"
+import Login from "./pages/Login"
+import useAuth from "./hooks/useAuth"
 
 export default function App() {
-  const CLIENT_ID = import.meta.env.VITE_SOME_CLIENT_ID
-  const REDIRECT_URI = import.meta.env.VITE_SOME_REDIRECT_URI
-  const AUTHORIZE = "https://accounts.spotify.com/authorize"
-  const TOKEN = "https://accounts.spotify.com/api/token"
+  const { token, login, logout } = useAuth()
+
   const SEARCH = "https://api.spotify.com/v1/search"
-
-  const [token, setToken] = useState("")
-
-  const login = async () => {
-    const generateRandomString = (length) => {
-      let text = ""
-      let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-
-      for (let i = 0; i < length; i++) {
-        text += possible.charAt(Math.floor(Math.random() * possible.length))
-      }
-      return text
-    }
-
-    const generateCodeChallenge = async (codeVerifier) => {
-      const base64encode = (string) => {
-        return btoa(String.fromCharCode.apply(null, new Uint8Array(string)))
-          .replace(/\+/g, "-")
-          .replace(/\//g, "_")
-          .replace(/=+$/, "")
-      }
-
-      const encoder = new TextEncoder()
-      const data = encoder.encode(codeVerifier)
-      const digest = await window.crypto.subtle.digest("SHA-256", data)
-
-      return base64encode(digest)
-    }
-
-    let codeVerifier = generateRandomString(128)
-
-    await generateCodeChallenge(codeVerifier).then((codeChallenge) => {
-      let state = generateRandomString(16)
-      let scope = "playlist-modify-private"
-
-      localStorage.setItem("code_verifier", codeVerifier)
-
-      let args = new URLSearchParams({
-        response_type: "code",
-        client_id: CLIENT_ID,
-        scope: scope,
-        redirect_uri: REDIRECT_URI,
-        state: state,
-        code_challenge_method: "S256",
-        code_challenge: codeChallenge,
-      })
-
-      window.location.replace(`${AUTHORIZE}?${args}`)
-    })
-  }
-
-  const getToken = async (token) => {
-    const urlParams = new URLSearchParams(window.location.search)
-    let code = urlParams.get("code")
-
-    if (code && !token) {
-      let codeVerifier = localStorage.getItem("code_verifier")
-
-      let body = new URLSearchParams({
-        grant_type: "authorization_code",
-        code: code,
-        redirect_uri: REDIRECT_URI,
-        client_id: CLIENT_ID,
-        code_verifier: codeVerifier,
-      })
-
-      await axios
-        .post(TOKEN, body, {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        })
-        .then((response) => {
-          console.log(response.data)
-          setToken(response.data.access_token)
-        })
-        .catch((error) => {
-          console.error("Error:", error)
-        })
-    }
-  }
-
-  useEffect(() => {
-    getToken(token)
-  }, [token])
-
-  const logout = () => {
-    setToken("")
-    localStorage.removeItem("code_verifier")
-    window.location.replace(REDIRECT_URI)
-  }
 
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState([])
@@ -124,27 +30,14 @@ export default function App() {
 
   return (
     <>
-      {!token ? (
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#191919] to-[#050505]">
-          <div className="card w-6/12 bg-[#0c0c0c] shadow-xl items-center text-center mx-auto rounded-lg">
-            <div className="card-body">
-              <div className="flex flex-col items-center justify-center h-96">
-                <img src={spotifyLogo} alt="spotify logo" className="w-14 m-5" />
-                <h1 className="card-title text-4xl text-white mb-10">Spotify Clone</h1>
-                <div className="card-actions justify-center">
-                  <button className="bg-[#0c0c0c] text-[#65d46e] border border-green-400 font-semibold py-4 px-12 rounded-full hover:bg-[#65d46e] hover:text-[#0c0c0c] hover:border-transparent" onClick={login}>
-                    Login by Spotify
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      {!localStorage.getItem("accessToken") ? (
+        <Login token={token} handleLogin={login} />
       ) : (
         <div className="grid grid-cols-12 gap-3 py-1 px-1">
           <div className="py-1 h-screen fixed w-[25rem]">
             <div className="bg-[#121212] rounded-xl py-4 px-2 mb-2">
-              <h2 className="text-md font-semibold mx-4 cursor-pointer text-white">Home</h2>
+              <h2 className="text-md font-semibold mx-4 my-2 cursor-pointer text-white">Home</h2>
+              <h2 className="text-md font-semibold mx-4 my-2 cursor-pointer">Search</h2>
             </div>
             <div className="bg-[#121212] rounded-xl py-4 px-2 h-screen">
               <h2 className="text-md font-semibold mb-4 mx-4 cursor-pointer">Your Library</h2>
