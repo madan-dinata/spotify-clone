@@ -4,6 +4,7 @@ import { useState } from "react"
 import axios from "axios"
 import Login from "./pages/Login"
 import useAuth from "./hooks/useAuth"
+import { useEffect } from "react"
 
 export default function App() {
   const { token, login, logout } = useAuth()
@@ -27,6 +28,18 @@ export default function App() {
         console.error("Error searching tracks:", error)
       })
   }
+
+  useEffect(() => {
+    if (searchQuery) {
+      const debounceSearch = setTimeout(() => {
+        handleSearch()
+      }, 500)
+
+      return () => {
+        clearTimeout(debounceSearch)
+      }
+    }
+  }, [searchQuery])
 
   return (
     <>
@@ -54,9 +67,6 @@ export default function App() {
               <div className="grid grid-cols-6 gap-4">
                 <div className="col-start-1 col-end-10">
                   <input type="text" placeholder="Search..." className="px-4 py-3 mb-3 me-3 rounded-3xl w-2/6" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-                  <button className="btn btn-primary mt-2 px-5 py-3 rounded-xl" onClick={handleSearch}>
-                    Search
-                  </button>
                 </div>
                 <div className="col-end-12 col-span-2">
                   <button className="btn btn-danger p-3 rounded-lg" onClick={logout}>
@@ -66,7 +76,7 @@ export default function App() {
               </div>
               <br />
               <h2 className="text-xl font-semibold mb-4">Song List</h2>
-              <table className="table w-full cursor-pointer">
+              <table className="table w-full">
                 <thead>
                   <tr>
                     <th>No</th>
@@ -75,7 +85,7 @@ export default function App() {
                     <th>Duration</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="cursor-pointer">
                   {searchResults.map((track, i) => (
                     <tr key={track.id} className="hover:bg-[#121212]">
                       <td>{i + 1}</td>
