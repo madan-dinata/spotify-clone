@@ -40,7 +40,8 @@ export default function useAuth() {
 
     await generateCodeChallenge(codeVerifier).then((codeChallenge) => {
       let state = generateRandomString(16)
-      let scope = "playlist-modify-private"
+      let scope =
+        "user-read-private user-read-email user-modify-playback-state user-read-playback-position user-library-read streaming user-read-recently-played playlist-read-private user-read-currently-playing playlist-read-collaborative playlist-modify-private playlist-modify-public user-follow-modify user-follow-read user-top-read user-library-modify"
 
       localStorage.setItem("code_verifier", codeVerifier)
 
@@ -90,7 +91,7 @@ export default function useAuth() {
   }
 
   useEffect(() => {
-    getToken(token)
+    getToken(localStorage.getItem("accessToken"))
   }, [token])
 
   const logout = () => {
