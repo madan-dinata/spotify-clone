@@ -1,7 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import axios from "axios"
-import { useEffect } from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 export default function useAuth() {
   const CLIENT_ID = import.meta.env.VITE_SOME_CLIENT_ID
@@ -13,7 +11,7 @@ export default function useAuth() {
   const login = async () => {
     const generateRandomString = (length) => {
       let text = ""
-      let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+      const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 
       for (let i = 0; i < length; i++) {
         text += possible.charAt(Math.floor(Math.random() * possible.length))
@@ -36,23 +34,23 @@ export default function useAuth() {
       return base64encode(digest)
     }
 
-    let codeVerifier = generateRandomString(128)
+    const codeVerifier = generateRandomString(128)
 
     await generateCodeChallenge(codeVerifier).then((codeChallenge) => {
-      let state = generateRandomString(16)
-      let scope =
+      const state = generateRandomString(16)
+      const scope =
         "user-read-private user-read-email user-modify-playback-state user-read-playback-position user-library-read streaming user-read-recently-played playlist-read-private user-read-currently-playing playlist-read-collaborative playlist-modify-private playlist-modify-public user-follow-modify user-follow-read user-top-read user-library-modify"
 
       localStorage.setItem("code_verifier", codeVerifier)
 
-      let args = new URLSearchParams({
+      const args = new URLSearchParams({
         response_type: "code",
         client_id: CLIENT_ID,
         scope: scope,
         redirect_uri: REDIRECT_URI,
         state: state,
         code_challenge_method: "S256",
-        code_challenge: codeChallenge,
+        code_challenge: codeChallenge
       })
 
       window.location.replace(`${AUTHORIZE}?${args}`)
@@ -61,24 +59,24 @@ export default function useAuth() {
 
   const getToken = async (token) => {
     const urlParams = new URLSearchParams(window.location.search)
-    let code = urlParams.get("code")
+    const code = urlParams.get("code")
 
     if (code && !token) {
-      let codeVerifier = localStorage.getItem("code_verifier")
+      const codeVerifier = localStorage.getItem("code_verifier")
 
-      let body = new URLSearchParams({
+      const body = new URLSearchParams({
         grant_type: "authorization_code",
         code: code,
         redirect_uri: REDIRECT_URI,
         client_id: CLIENT_ID,
-        code_verifier: codeVerifier,
+        code_verifier: codeVerifier
       })
 
       await axios
         .post(TOKEN, body, {
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
+            "Content-Type": "application/x-www-form-urlencoded"
+          }
         })
         .then((response) => {
           setToken(response.data.access_token)
@@ -92,7 +90,7 @@ export default function useAuth() {
 
   useEffect(() => {
     getToken(localStorage.getItem("accessToken"))
-  }, [token])
+  }, [])
 
   const logout = () => {
     setToken("")
