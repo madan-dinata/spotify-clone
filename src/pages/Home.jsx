@@ -8,18 +8,19 @@ export default function Home() {
   const [searchResults, setSearchResults] = useState([])
 
   const handleSearch = async () => {
-    return await axios
-      .get(`${SEARCH}?q=${searchQuery}&type=track`, {
+    const accessToken = localStorage.getItem("accessToken")
+
+    try {
+      const response = await axios.get(`${SEARCH}?q=${searchQuery}&type=track`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+          Authorization: `Bearer ${accessToken}`
         }
       })
-      .then((res) => {
-        setSearchResults(res.data.tracks.items)
-      })
-      .catch((error) => {
-        console.error("Error searching tracks:", error)
-      })
+
+      setSearchResults(response.data.tracks.items)
+    } catch (error) {
+      console.error("Error searching tracks:", error)
+    }
   }
 
   useEffect(() => {
@@ -34,14 +35,16 @@ export default function Home() {
     }
   }, [searchQuery])
 
-  // get recommendation
-  // eslint-disable-next-line no-unused-vars
   const [recommendation, setRecommendation] = useState([])
 
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken")
+    handleRecom(token)
+  }, [])
+
   const handleRecom = async (token) => {
-    // function masih harus karena terlambat ngeget token jadi kebutu error dulu
-    return await axios
-      .get(
+    try {
+      const response = await axios.get(
         "https://api.spotify.com/v1/recommendations?seed_artists=4NHQUGzhtTLFvgF5SZesLK&seed_genres=classical%2Ccountry&seed_tracks=0c6xIDDpzE81m2q797ordA",
         {
           headers: {
@@ -49,39 +52,31 @@ export default function Home() {
           }
         }
       )
-      .then((res) => {
-        setRecommendation(res.data)
-      })
-      .catch((err) => {
-        console.error("Error get recommendation", err)
-      })
+      setRecommendation(response.data.tracks)
+    } catch (err) {
+      console.error("Error getting recommendation", err)
+    }
   }
 
-  useEffect(() => {
-    handleRecom(localStorage.getItem("accessToken"))
-  }, [])
-
-  // add playlist #2
   const addToPlaylist = async (uri) => {
-    return await axios
-      .post(
-        "https://api.spotify.com/v1/playlists/2lW7YFkq5E1teENIgl0nNI/tracks",
+    const token = localStorage.getItem("accessToken")
+    try {
+      const response = await axios.post(
+        "https://api.spotify.com/v1/playlists/2lW7YFkq5E1teENIgl0nNI/tracks", // Ganti dengan ID playlist yang sesuai
         {
           uris: [uri],
           position: 0
         },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+            Authorization: `Bearer ${token}`
           }
         }
       )
-      .then((res) => {
-        console.log(res.data)
-      })
-      .catch((err) => {
-        console.error("Error add Playlist", err)
-      })
+      console.log(response.data)
+    } catch (err) {
+      console.error("Error adding to Playlist", err)
+    }
   }
 
   return (
@@ -169,7 +164,7 @@ export default function Home() {
               </tr>
             </thead>
             <tbody className="cursor-pointer">
-              {/* {recommendation?.tracks.map((track, i) => (
+              {recommendation?.map((track, i) => (
                 <tr key={track.id} className="hover:bg-[#121212]">
                   <td>{i + 1}</td>
                   <td>
@@ -181,7 +176,9 @@ export default function Home() {
                       </div>
                       <div>
                         <div className="font-bold">{track.name}</div>
-                        <div className="text-sm opacity-50">{track.artists.map((artist) => artist.name).join(", ")}</div>
+                        <div className="text-sm opacity-50">
+                          {track.artists.map((artist) => artist.name).join(", ")}
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -194,7 +191,7 @@ export default function Home() {
                     })()}
                   </td>
                 </tr>
-              ))} */}
+              ))}
             </tbody>
             <tfoot>
               <tr>

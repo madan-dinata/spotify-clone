@@ -6,16 +6,12 @@ export default function Recommendation() {
   const [recommendation, setRecommendation] = useState([])
 
   const handleRecom = async () => {
-    // function masih error karena terlambat ngeget token jadi keburu error dulu
-    return await axios
-      .get("http://localhost:3000/api/v1/playlists/most-played")
-      .then((res) => {
-        console.log(res.data.data)
-        setRecommendation(res.data.data)
-      })
-      .catch((err) => {
-        console.error("Error get recommendation", err)
-      })
+    try {
+      const res = await axios.get("http://localhost:3000/api/v1/playlists/most-played")
+      setRecommendation(res.data.data)
+    } catch (error) {
+      console.error("Error get recommendation", error)
+    }
   }
 
   useEffect(() => {
@@ -24,14 +20,12 @@ export default function Recommendation() {
 
   // add playlist #2
   const playSong = async (id) => {
-    return await axios
-      .put(`http://localhost:3000/api/v1/playlists/${id}`)
-      .then((res) => {
-        console.log(res.data)
-      })
-      .catch((err) => {
-        console.error("Error add Playlist", err)
-      })
+    try {
+      const res = await axios.put(`http://localhost:3000/api/v1/playlists/${id}`)
+      console.log(res.data)
+    } catch (error) {
+      console.error("Error add Playlist", error)
+    }
   }
 
   return (

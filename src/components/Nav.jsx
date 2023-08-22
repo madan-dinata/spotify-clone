@@ -8,28 +8,30 @@ export default function Nav() {
   // playlist
   const [playlist, setPlaylist] = useState([])
 
-  const getPlaylist = async (token) => {
-    return await axios
-      .get("https://api.spotify.com/v1/me/playlists", {
+  const getPlaylist = async (accessToken) => {
+    try {
+      const response = await axios.get("https://api.spotify.com/v1/me/playlists", {
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${accessToken}`
         }
       })
-      .then((res) => {
-        console.log(res.data)
-        setPlaylist(res.data)
-      })
-      .catch((err) => {
-        console.error("Error get playlist", err)
-      })
+      setPlaylist(response.data.items)
+    } catch (error) {
+      console.error("Error getting playlist", error)
+    }
   }
 
   useEffect(() => {
-    getPlaylist(localStorage.getItem("accessToken"))
+    const accessToken = localStorage.getItem("accessToken")
+    if (accessToken) {
+      getPlaylist(accessToken)
+    }
   }, [])
 
   const handlePlaylist = () => {
-    // return
+    // Implement the logic for handling playlists here
+    // For example, you can filter, manipulate, or display playlists
+    // based on user interactions.
   }
 
   return (
@@ -54,7 +56,7 @@ export default function Nav() {
             +
           </span> */}
         </div>
-        {!playlist ? (
+        {playlist === 0 ? (
           <>
             <div className="px-4 bg-[#242424] rounded-lg py-3 text-white">
               <p className="font-semibold mb-2" onClick={handlePlaylist}>
@@ -68,13 +70,17 @@ export default function Nav() {
           </>
         ) : (
           <ul>
-            {/* {playlist.items.map((item) => (
+            {playlist.map((item) => (
               <li key={item.id} className="hover:bg-[#242424] cursor-pointer mt-1 p-3 rounded-md">
                 <Link to={`/playlist/${item.id}`}>
                   <div className="flex items-center space-x-3">
                     <div className="avatar">
                       <div className="mask w-12 h-12">
-                        <img src={item.images.length > 0 ? item.images[0].url : songImage} alt={item.name} className="bg-[#282828]" />
+                        <img
+                          src={item.images.length > 0 ? item.images[0].url : songImage}
+                          alt={item.name}
+                          className="bg-[#282828]"
+                        />
                       </div>
                     </div>
                     <div className="flex flex-col">
@@ -86,7 +92,7 @@ export default function Nav() {
                   </div>
                 </Link>
               </li>
-            ))} */}
+            ))}
           </ul>
         )}
       </div>

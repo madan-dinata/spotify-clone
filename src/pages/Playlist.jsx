@@ -8,19 +8,18 @@ export default function Playlist() {
   const [playlist, setPlaylist] = useState([])
 
   const handlePlaylist = async (id) => {
-    return await axios
-      .get(`https://api.spotify.com/v1/playlists/${id}/tracks`, {
+    const accessToken = localStorage.getItem("accessToken")
+
+    try {
+      const response = await axios.get(`https://api.spotify.com/v1/playlists/${id}/tracks`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+          Authorization: `Bearer ${accessToken}`
         }
       })
-      .then((res) => {
-        console.log(res.data.items)
-        setPlaylist(res.data.items)
-      })
-      .catch((error) => {
-        console.error("Error get Playlit details:", error)
-      })
+      setPlaylist(response.data.items)
+    } catch (error) {
+      console.error("Error getting Playlist details:", error)
+    }
   }
 
   useEffect(() => {

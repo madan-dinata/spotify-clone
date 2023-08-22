@@ -57,7 +57,7 @@ export default function useAuth() {
     })
   }
 
-  const getToken = async (token) => {
+  const getToken = async () => {
     const urlParams = new URLSearchParams(window.location.search)
     const code = urlParams.get("code")
 
@@ -72,24 +72,29 @@ export default function useAuth() {
         code_verifier: codeVerifier
       })
 
-      await axios
-        .post(TOKEN, body, {
+      try {
+        const response = await axios.post(TOKEN, body, {
           headers: {
             "Content-Type": "application/x-www-form-urlencoded"
           }
         })
-        .then((response) => {
-          setToken(response.data.access_token)
-          localStorage.setItem("accessToken", response.data.access_token)
-        })
-        .catch((error) => {
-          console.error("Error:", error)
-        })
+
+        const accessToken = response.data.access_token
+        if (accessToken) {
+          setToken(accessToken)
+          localStorage.setItem("accessToken", accessToken)
+        } else {
+          console.error("Access token not received in response.")
+        }
+      } catch (error) {
+        console.error("Error fetching token:", error)
+        // Handle error, show message to user, etc.
+      }
     }
   }
 
   useEffect(() => {
-    getToken(localStorage.getItem("accessToken"))
+    getToken()
   }, [])
 
   const logout = () => {
